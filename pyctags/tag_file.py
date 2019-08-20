@@ -21,6 +21,9 @@ Python representation of ctags format file.
 """
 
 import os
+import logging
+
+logger = logging.getLogger('tag_file')
 try:
     # do relative imports for tests
     # try this first in case pyctags is already installed, since we want to be testing the source bundled in the distribution
@@ -144,7 +147,7 @@ class ctags_file:
 
         self.feed_init(**kwargs)
 
-        for line in tags:
+        for line_number, line in enumerate(tags):
             if not _PYTHON_3000_ and type(line) is not unicode:
                 line = line.decode("utf-8")
             if line[0] == '!':
@@ -154,7 +157,7 @@ class ctags_file:
                 try:
                     self.__HEADER_ITEMS[elements[0]](self, elements[1:])
                 except KeyError:
-                    print ("Unknown header comment element " + elements[0] + " at line " + line_number + ".")
+                    logger.error("Unknown header comment element %s at line %d." % elements[0], line_number)
             else:
                 self.feed_line(line)
 
